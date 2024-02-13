@@ -28,7 +28,7 @@ async function filterJobs(formData: FormData) {
 }
 
 export const JobFilterSidebar = async ({
-  defaultValues: { q, remote, location, type },
+  defaultValues,
 }: JobFilterSidebarProps) => {
   const distinctLocations = (await prisma.job
     .findMany({
@@ -42,20 +42,20 @@ export const JobFilterSidebar = async ({
 
   return (
     <aside className="rounded-ls sticky top-0 h-fit border bg-background p-4 md:w-[260px]">
-      <form action={filterJobs}>
+      <form action={filterJobs} key={JSON.stringify(defaultValues)}>
         <div className="space-y-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="q">Search</Label>
             <Input
               name="q"
               placeholder="Title, company, etc..."
-              defaultValue={q || ""}
+              defaultValue={defaultValues.q || ""}
             />
           </div>
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="type">Type</Label>
-            <Select id="type" defaultValue={type || ""}>
+            <Select id="type" defaultValue={defaultValues.type || ""}>
               <option value="">All types</option>
               {jobTypes.map((type) => (
                 <option key={type} value={type}>
@@ -67,7 +67,7 @@ export const JobFilterSidebar = async ({
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="location">Location</Label>
-            <Select id="location" name="location" defaultValue={location || ""}>
+            <Select id="location" name="location" defaultValue={defaultValues.location || ""}>
               <option value="">All locations</option>
               {distinctLocations.map((location) => (
                 <option key={location} value={location}>
@@ -83,12 +83,12 @@ export const JobFilterSidebar = async ({
               id="remote"
               name="remote"
               className="scale-125 accent-black"
-              defaultChecked={remote}
+              defaultChecked={defaultValues.remote}
             />
             <Label htmlFor="remote">Remote Jobs</Label>
           </div>
 
-          <FormSubmitButton className="w-full">Filter</FormSubmitButton>
+          <FormSubmitButton className="w-full">Filter Jobs</FormSubmitButton>
         </div>
       </form>
     </aside>
