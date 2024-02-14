@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
 import { draftToMarkdown } from "markdown-draft-js";
 import { useForm } from "react-hook-form";
+import { createJobsPosting } from "../actions";
 import { LoadingButton } from "./LoadingButton";
 import LocationInput from "./LocationInput";
 import RichTextEditor from "./RichTextEditor";
@@ -38,9 +39,20 @@ export const NewJobForm = () => {
   } = form;
 
   async function onSubmit(values: CreateJobValues) {
-    console.log("values : ", values);
-    alert(JSON.stringify(values, null, 2));
-  }
+    const formData = new FormData();
+
+    Object.entries(values).forEach(([key, value]) => {
+      if(value) {
+        formData.append(key, value);
+      }
+    })
+
+    try {
+      await createJobsPosting(formData);
+    } catch (error:any) {
+      console.error(error);
+    }
+}
 
   return (
     <main className="m-auto my-10 max-w-3xl space-y-10">
