@@ -1,6 +1,7 @@
 import { JobListItem } from "@/components/JobListItem";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import Link from "next/link";
 import { JobFilterValue } from "../../schemas/validation";
 
 interface JobResultsProps {
@@ -46,16 +47,16 @@ export const JobResults = async ({
         ],
       }
     : {};
-  
-    const where: Prisma.JobWhereInput = {
-      AND: [
-        searchFilter,
-        type ? { type } : {},
-        location ? { location } : {},
-        remote ? { locationType: "Remote" } : {},
-        { approved: true }
-      ]
-    }
+
+  const where: Prisma.JobWhereInput = {
+    AND: [
+      searchFilter,
+      type ? { type } : {},
+      location ? { location } : {},
+      remote ? { locationType: "Remote" } : {},
+      { approved: true },
+    ],
+  };
 
   const jobs = await prisma.job.findMany({
     where,
@@ -67,9 +68,15 @@ export const JobResults = async ({
   return (
     <div className="grow space-y-4">
       {jobs.map((job) => (
-        <JobListItem job={job} key={job.id} />
+        <Link href={`/jobs/${job.slug}`} key={job.id} className="block">
+          <JobListItem job={job} />
+        </Link>
       ))}
-      {jobs.length === 0 && (<p className="text-center m-auto">No jobs found.Try adjusting your search filters.</p>)}
+      {jobs.length === 0 && (
+        <p className="m-auto text-center">
+          No jobs found.Try adjusting your search filters.
+        </p>
+      )}
     </div>
   );
 };
