@@ -1,6 +1,7 @@
 import { JobDetailsPage } from "@/components/JobDetailsPage";
 import { Button } from "@/components/ui/button";
 import prisma from "@/lib/prisma";
+import { isAdmin } from "@/lib/utils";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -11,7 +12,7 @@ interface Pageprops {
   };
 }
 
-const getJob = cache(async (slug: string) => {
+const getJob = cache(async (slug: string) => { 
   const job = await prisma.job.findUnique({
     where: { slug },
   });
