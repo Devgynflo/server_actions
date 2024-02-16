@@ -3,14 +3,22 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import Link from "next/link";
 import { JobFilterValue } from "../../schemas/validation";
+import { Pagination } from "./Pagination";
 
 interface JobResultsProps {
   filterValues: JobFilterValue;
+  page?: number;
 }
 
 export const JobResults = async ({
-  filterValues: { q, location, type, remote },
+  filterValues,
+  page = 1,
 }: JobResultsProps) => {
+  const { q, location, type, remote } = filterValues;
+
+  const jobsPerPage = 6;
+  const skip = (page - 1) * jobsPerPage;
+
   const searchString = q
     ?.split(" ")
     .filter((word) => word.length > 0)
@@ -58,12 +66,19 @@ export const JobResults = async ({
     ],
   };
 
-  const jobs = await prisma.job.findMany({
+  const jobsPromise = prisma.job.findMany({
     where,
     orderBy: {
       createdAt: "desc",
     },
+    take: jobsPerPage,
+    skip,
   });
+
+  const countPromise = prisma.job.count({ where });
+
+  const [jobs, count] = await Promise.all([jobsPromise, countPromise]);
+  
 
   return (
     <div className="grow space-y-4">
@@ -76,6 +91,13 @@ export const JobResults = async ({
         <p className="m-auto text-center">
           No jobs found.Try adjusting your search filters.
         </p>
+      )}
+      {jobs.length > 0 && (
+        <Pagination
+          currentPage={page}
+          filterValues={filterValues}
+          totalPages={Math.ceil(count / jobsPerPage)}
+        />
       )}
     </div>
   );
